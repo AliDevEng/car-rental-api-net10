@@ -331,8 +331,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Ali Rezai**
 
 - GitHub: [@AliDevEng](https://github.com/AliDevEng)
-- LinkedIn: [Your LinkedIn Profile]
-- Portfolio: [Your Portfolio URL]
+- LinkedIn: [https://www.linkedin.com/in/ali-rezai-314172168/]
+- Portfolio: [https://github.com/AliDevEng]
 
 ---
 
