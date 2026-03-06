@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using CarRental.Application.DTOs.Customer;
 using CarRental.Application.Services.Interfaces;
@@ -16,9 +17,10 @@ public class CustomersController : ControllerBase
     }
 
     /// <summary>
-    /// Register a new customer
+    /// Create a new customer (admin only). Use /auth/register for self-registration.
     /// </summary>
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(CustomerResponseDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -32,6 +34,7 @@ public class CustomersController : ControllerBase
     /// Get customer profile by ID
     /// </summary>
     [HttpGet("{id}")]
+    [Authorize]
     [ProducesResponseType(typeof(CustomerResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CustomerResponseDto>> GetCustomer(int id)
@@ -44,6 +47,7 @@ public class CustomersController : ControllerBase
     /// Update customer profile
     /// </summary>
     [HttpPut("{id}")]
+    [Authorize]
     [ProducesResponseType(typeof(CustomerResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

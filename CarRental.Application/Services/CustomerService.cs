@@ -36,7 +36,7 @@ public class CustomerService : ICustomerService
         var customer = new Customer
         {
             Email = dto.Email,
-            Password = dto.Password, // Plain text for now - BCrypt hashing in Phase 3
+            Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
             FirstName = dto.FirstName,
             LastName = dto.LastName,
             Phone = dto.Phone,

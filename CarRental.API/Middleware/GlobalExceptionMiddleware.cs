@@ -41,6 +41,12 @@ public class GlobalExceptionMiddleware
                 response.Errors = validationEx.Errors;
                 break;
 
+            case UnauthorizedException unauthorizedEx:
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                response.Status = 401;
+                response.Message = unauthorizedEx.Message;
+                break;
+
             case NotFoundException notFoundEx:
                 context.Response.StatusCode = StatusCodes.Status404NotFound;
                 response.Status = 404;

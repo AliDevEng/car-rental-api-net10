@@ -20,15 +20,17 @@ A modern, scalable **RESTful API** for car rental management built with **.NET 1
 - ✅ **Customer Management** - Register customers and manage profiles
 - ✅ **Admin Dashboard** - Dashboard statistics and customer listing endpoints
 - ✅ **Input Validation** - FluentValidation with detailed field-level error messages
-- ✅ **Global Error Handling** - Consistent JSON error responses (400, 404, 409, 500)
+- ✅ **Global Error Handling** - Consistent JSON error responses (400, 401, 404, 409, 500)
 - ✅ **RESTful API** - Clean, predictable endpoints following REST conventions
 - ✅ **Database Migrations** - Code-first approach with Entity Framework Core
 - ✅ **CORS Configuration** - Ready for frontend integration
 - ✅ **Seed Data** - Pre-populated car categories for testing
 - ✅ **Clean Architecture** - Separation of concerns with distinct layers
+- ✅ **JWT Authentication** - Secure token-based authentication for customers and admins
+- ✅ **Password Hashing** - BCrypt password hashing for secure credential storage
+- ✅ **Role-Based Access Control** - Admin-only and authenticated-user endpoint protection
 
 ### Upcoming Features
-- 🔜 **JWT Authentication** - Secure user and admin authentication
 - 🔜 **Booking System** - Create and manage rental reservations
 - 🔜 **Payment Processing** - Handle payment transactions
 
@@ -42,6 +44,7 @@ This project follows **Clean Architecture** principles with clear separation of 
 CarRental/
 ├── CarRental.API/              # Presentation Layer
 │   ├── Controllers/            # API endpoints
+│   │   ├── AuthController.cs
 │   │   ├── CategoriesController.cs
 │   │   ├── CarsController.cs
 │   │   ├── CustomersController.cs
@@ -52,6 +55,7 @@ CarRental/
 │
 ├── CarRental.Application/      # Business Logic Layer
 │   ├── DTOs/                   # Data Transfer Objects
+│   │   ├── Auth/               # Auth request/response DTOs
 │   │   ├── Car/                # Car request/response DTOs
 │   │   ├── Customer/           # Customer request/response DTOs
 │   │   ├── Admin/              # Admin response DTOs
@@ -168,20 +172,20 @@ The API will be available at: **https://localhost:7174**
 
 ### Categories
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/categories` | Get all car categories |
-| `GET` | `/categories/{id}` | Get category by ID (includes cars) |
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `GET` | `/categories` | Get all car categories | 🌐 Public |
+| `GET` | `/categories/{id}` | Get category by ID (includes cars) | 🌐 Public |
 
 ### Cars
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/cars` | Get all cars (filtered, sorted, paged) |
-| `GET` | `/cars/{id}` | Get car by ID |
-| `POST` | `/cars` | Create a new car |
-| `PUT` | `/cars/{id}` | Update an existing car |
-| `DELETE` | `/cars/{id}` | Delete a car |
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `GET` | `/cars` | Get all cars (filtered, sorted, paged) | 🌐 Public |
+| `GET` | `/cars/{id}` | Get car by ID | 🌐 Public |
+| `POST` | `/cars` | Create a new car | 🔒 Admin |
+| `PUT` | `/cars/{id}` | Update an existing car | 🔒 Admin |
+| `DELETE` | `/cars/{id}` | Delete a car | 🔒 Admin |
 
 **Query Parameters for `GET /cars`:**
 
@@ -199,26 +203,61 @@ The API will be available at: **https://localhost:7174**
 | `sortBy` | string | Sort field: id, brand, model, price, year (default: id) |
 | `sortDirection` | string | asc or desc (default: asc) |
 
+### Authentication
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `POST` | `/auth/register` | Register a new customer account | 🌐 Public |
+| `POST` | `/auth/login` | Customer login | 🌐 Public |
+| `POST` | `/auth/admin/login` | Admin login | 🌐 Public |
+
 ### Customers
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/customers` | Register a new customer |
-| `GET` | `/customers/{id}` | Get customer profile |
-| `PUT` | `/customers/{id}` | Update customer profile |
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `POST` | `/customers` | Create a customer (admin) | 🔒 Admin |
+| `GET` | `/customers/{id}` | Get customer profile | 🔒 Authenticated |
+| `PUT` | `/customers/{id}` | Update customer profile | 🔒 Authenticated |
 
 ### Admin
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/admin/stats` | Get dashboard statistics |
-| `GET` | `/admin/customers` | Get all customers |
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `GET` | `/admin/stats` | Get dashboard statistics | 🔒 Admin |
+| `GET` | `/admin/customers` | Get all customers | 🔒 Admin |
 
-**Example — Create Car:**
+**Example — Register:**
+
+```http
+POST https://localhost:7174/auth/register
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "password": "securePassword123",
+  "firstName": "John",
+  "lastName": "Doe"
+}
+```
+
+**Example — Login Response (200):**
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIs...",
+  "expiresAt": "2026-03-08T15:30:00Z",
+  "role": "Customer",
+  "userId": 1,
+  "email": "john@example.com"
+}
+```
+
+**Example — Create Car (requires Admin JWT):**
 
 ```http
 POST https://localhost:7174/cars
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
 
 {
   "categoryId": 2,
@@ -247,10 +286,17 @@ Content-Type: application/json
 }
 ```
 
+**Example — Unauthorized Response (401):**
+
+```json
+{
+  "status": 401,
+  "message": "Invalid email or password."
+}
+```
+
 ### Coming Soon
 
-- 🔜 `POST /auth/register` - User registration with JWT
-- 🔜 `POST /auth/login` - User authentication
 - 🔜 `POST /rentals` - Create a booking
 - 🔜 `POST /payments` - Process payment
 
@@ -301,8 +347,12 @@ curl https://localhost:7174/categories -k
 | MySql.EntityFrameworkCore | 10.0.1 | Infrastructure, API | MySQL provider |
 | Microsoft.EntityFrameworkCore.Design | 10.0.3 | Infrastructure, API | Migration tools |
 | Microsoft.AspNetCore.OpenApi | 10.0.3 | API | OpenAPI support |
+| Microsoft.AspNetCore.Authentication.JwtBearer | 10.0.3 | API | JWT authentication middleware |
 | FluentValidation | 11.11.0 | Application | Input validation |
 | FluentValidation.DependencyInjectionExtensions | 11.11.0 | Application | Validator DI registration |
+| BCrypt.Net-Next | 4.1.0 | Application | Password hashing |
+| System.IdentityModel.Tokens.Jwt | 8.16.0 | Application | JWT token generation |
+| Microsoft.Extensions.Configuration.Abstractions | 10.0.3 | Application | Configuration access |
 
 ---
 
@@ -324,13 +374,15 @@ curl https://localhost:7174/categories -k
 - [x] Global error handling middleware
 - [x] Proper HTTP status codes (201, 400, 404, 409, 500)
 
-### Phase 3: Authentication & Authorization 🔄 (Next)
-- [ ] JWT implementation
-- [ ] User registration/login
-- [ ] Role-based access control
-- [ ] Password hashing with BCrypt
+### Phase 3: Authentication & Authorization ✅
+- [x] JWT implementation (HMAC-SHA256, configurable expiry)
+- [x] User registration/login endpoints
+- [x] Admin login endpoint
+- [x] Role-based access control (Admin, Customer)
+- [x] Password hashing with BCrypt
+- [x] Global 401 error handling
 
-### Phase 4: Booking System
+### Phase 4: Booking System 🔄 (Next)
 - [ ] Rental creation
 - [ ] Availability checking
 - [ ] Booking management
