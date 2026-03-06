@@ -6,6 +6,12 @@
 # dotenv files
 .env
 
+# Project Development Files (Local Reference Only)
+PROJECT-GUIDE.md
+frontend-setup-instruction.md
+MR_RENT_PROJECT_DESCRIPTION.md
+MR_RENT_SETUP_GUIDE.md
+
 # User-specific files
 *.rsuser
 *.suo
@@ -480,6 +486,3 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
-
-MR_RENT_PROJECT_DESCRIPTION.md
-MR_RENT_SETUP_GUIDE.md

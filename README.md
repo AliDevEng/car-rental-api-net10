@@ -15,7 +15,12 @@ A modern, scalable **RESTful API** for car rental management built with **.NET 1
 ## 🚀 Features
 
 ### Current Features
-- ✅ **Car Inventory Management** - Browse cars by category (Budget, Economy, SUV, Transport)
+- ✅ **Car Inventory Management** - Full CRUD for cars with category browsing
+- ✅ **Filtering & Pagination** - Filter by brand, fuel, transmission, price range; sorted & paged results
+- ✅ **Customer Management** - Register customers and manage profiles
+- ✅ **Admin Dashboard** - Dashboard statistics and customer listing endpoints
+- ✅ **Input Validation** - FluentValidation with detailed field-level error messages
+- ✅ **Global Error Handling** - Consistent JSON error responses (400, 404, 409, 500)
 - ✅ **RESTful API** - Clean, predictable endpoints following REST conventions
 - ✅ **Database Migrations** - Code-first approach with Entity Framework Core
 - ✅ **CORS Configuration** - Ready for frontend integration
@@ -24,10 +29,8 @@ A modern, scalable **RESTful API** for car rental management built with **.NET 1
 
 ### Upcoming Features
 - 🔜 **JWT Authentication** - Secure user and admin authentication
-- 🔜 **Car CRUD Operations** - Full management of car inventory
 - 🔜 **Booking System** - Create and manage rental reservations
 - 🔜 **Payment Processing** - Handle payment transactions
-- 🔜 **Admin Dashboard** - Administrative endpoints for system management
 
 ---
 
@@ -39,7 +42,24 @@ This project follows **Clean Architecture** principles with clear separation of 
 CarRental/
 ├── CarRental.API/              # Presentation Layer
 │   ├── Controllers/            # API endpoints
-│   └── Program.cs              # Application configuration
+│   │   ├── CategoriesController.cs
+│   │   ├── CarsController.cs
+│   │   ├── CustomersController.cs
+│   │   └── AdminController.cs
+│   ├── Middleware/             # Global exception handling
+│   │   └── GlobalExceptionMiddleware.cs
+│   └── Program.cs             # Application configuration
+│
+├── CarRental.Application/      # Business Logic Layer
+│   ├── DTOs/                   # Data Transfer Objects
+│   │   ├── Car/                # Car request/response DTOs
+│   │   ├── Customer/           # Customer request/response DTOs
+│   │   ├── Admin/              # Admin response DTOs
+│   │   └── Common/             # Shared DTOs (PagedResult)
+│   ├── Exceptions/             # Custom exceptions
+│   ├── Services/               # Business logic services
+│   │   └── Interfaces/         # Service contracts
+│   └── Validators/             # FluentValidation validators
 │
 ├── CarRental.Core/             # Domain Layer
 │   └── Entities/               # Business entities
@@ -50,16 +70,14 @@ CarRental/
 │       ├── Rental.cs
 │       └── Payment.cs
 │
-├── CarRental.Infrastructure/   # Data Access Layer
-│   ├── Data/
-│   │   └── CarRentalDbContext.cs
-│   └── Migrations/             # EF Core migrations
-│
-└── CarRental.Application/      # Business Logic Layer
-    └── (Future: Services, DTOs, Validators)
+└── CarRental.Infrastructure/   # Data Access Layer
+    ├── Data/
+    │   └── CarRentalDbContext.cs
+    └── Migrations/             # EF Core migrations
 ```
 
 **Design Patterns:**
+- Service Layer Pattern
 - Repository Pattern (planned)
 - Dependency Injection
 - Code-First Database Design
@@ -153,37 +171,86 @@ The API will be available at: **https://localhost:7174**
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/categories` | Get all car categories |
-| `GET` | `/categories/{id}` | Get category by ID |
+| `GET` | `/categories/{id}` | Get category by ID (includes cars) |
 
-**Example Request:**
+### Cars
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/cars` | Get all cars (filtered, sorted, paged) |
+| `GET` | `/cars/{id}` | Get car by ID |
+| `POST` | `/cars` | Create a new car |
+| `PUT` | `/cars/{id}` | Update an existing car |
+| `DELETE` | `/cars/{id}` | Delete a car |
+
+**Query Parameters for `GET /cars`:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `brand` | string | Filter by brand (partial match) |
+| `categoryId` | int | Filter by category |
+| `fuel` | string | Filter by fuel type (Petrol, Diesel, Electric, Hybrid) |
+| `transmission` | string | Filter by transmission (Manual, Automatic) |
+| `minPrice` | decimal | Minimum price filter |
+| `maxPrice` | decimal | Maximum price filter |
+| `status` | string | Filter by status (Available, Rented, Maintenance) |
+| `page` | int | Page number (default: 1) |
+| `pageSize` | int | Items per page (default: 10) |
+| `sortBy` | string | Sort field: id, brand, model, price, year (default: id) |
+| `sortDirection` | string | asc or desc (default: asc) |
+
+### Customers
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/customers` | Register a new customer |
+| `GET` | `/customers/{id}` | Get customer profile |
+| `PUT` | `/customers/{id}` | Update customer profile |
+
+### Admin
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/admin/stats` | Get dashboard statistics |
+| `GET` | `/admin/customers` | Get all customers |
+
+**Example — Create Car:**
 
 ```http
-GET https://localhost:7174/categories
-Accept: application/json
+POST https://localhost:7174/cars
+Content-Type: application/json
+
+{
+  "categoryId": 2,
+  "brand": "Toyota",
+  "model": "Corolla",
+  "year": 2024,
+  "regNr": "ABC-123",
+  "fuel": "Petrol",
+  "transmission": "Automatic",
+  "seats": 5,
+  "price": 250.00,
+  "status": "Available"
+}
 ```
 
-**Example Response:**
+**Example — Validation Error Response (400):**
 
 ```json
-[
-  {
-    "id": 1,
-    "name": "Budget",
-    "cars": []
-  },
-  {
-    "id": 2,
-    "name": "Economy",
-    "cars": []
+{
+  "status": 400,
+  "message": "One or more validation errors occurred.",
+  "errors": {
+    "Brand": ["Brand is required."],
+    "Fuel": ["Fuel must be one of: Petrol, Diesel, Electric, Hybrid."]
   }
-]
+}
 ```
 
 ### Coming Soon
 
-- 🔜 `POST /auth/register` - User registration
+- 🔜 `POST /auth/register` - User registration with JWT
 - 🔜 `POST /auth/login` - User authentication
-- 🔜 `GET /cars` - List all available cars
 - 🔜 `POST /rentals` - Create a booking
 - 🔜 `POST /payments` - Process payment
 
@@ -228,30 +295,36 @@ curl https://localhost:7174/categories -k
 
 ## 📦 NuGet Packages
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| Microsoft.EntityFrameworkCore | 10.0.3 | ORM framework |
-| MySql.EntityFrameworkCore | 10.0.1 | MySQL provider |
-| Microsoft.EntityFrameworkCore.Design | 10.0.3 | Migration tools |
+| Package | Version | Project | Purpose |
+|---------|---------|---------|---------|
+| Microsoft.EntityFrameworkCore | 10.0.3 | Infrastructure | ORM framework |
+| MySql.EntityFrameworkCore | 10.0.1 | Infrastructure, API | MySQL provider |
+| Microsoft.EntityFrameworkCore.Design | 10.0.3 | Infrastructure, API | Migration tools |
+| Microsoft.AspNetCore.OpenApi | 10.0.3 | API | OpenAPI support |
+| FluentValidation | 11.11.0 | Application | Input validation |
+| FluentValidation.DependencyInjectionExtensions | 11.11.0 | Application | Validator DI registration |
 
 ---
 
 ## 🚧 Roadmap
 
-### Phase 1: Foundation ✅ (Current)
+### Phase 1: Foundation ✅
 - [x] Clean architecture setup
 - [x] Database schema design
 - [x] Categories API
 - [x] CORS configuration
 - [x] Initial migration
 
-### Phase 2: Core Features 🔄 (In Progress)
-- [ ] Cars CRUD endpoints
-- [ ] Filtering and pagination
-- [ ] Image upload support
-- [ ] Advanced search
+### Phase 2: Core API ✅
+- [x] Cars CRUD endpoints (Create, Read, Update, Delete)
+- [x] Filtering, sorting, and pagination
+- [x] Customer management endpoints
+- [x] Admin dashboard statistics endpoint
+- [x] Input validation with FluentValidation
+- [x] Global error handling middleware
+- [x] Proper HTTP status codes (201, 400, 404, 409, 500)
 
-### Phase 3: Authentication & Authorization
+### Phase 3: Authentication & Authorization 🔄 (Next)
 - [ ] JWT implementation
 - [ ] User registration/login
 - [ ] Role-based access control
@@ -298,7 +371,7 @@ dotnet ef migrations remove --project CarRental.Infrastructure --startup-project
 - **CarRental.API** - Entry point, controllers, middleware configuration
 - **CarRental.Core** - Domain models, business rules (framework-agnostic)
 - **CarRental.Infrastructure** - Database context, migrations, repositories
-- **CarRental.Application** - Business logic, DTOs, service interfaces (future)
+- **CarRental.Application** - Business logic services, DTOs, validators, custom exceptions
 
 This structure ensures:
 - ✅ Testability

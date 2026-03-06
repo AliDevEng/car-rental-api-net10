@@ -1,5 +1,9 @@
 @CarRental.API_HostAddress = https://localhost:7174
 
+### ============================================
+### CATEGORIES
+### ============================================
+
 ### Get all categories
 GET {{CarRental.API_HostAddress}}/categories
 Accept: application/json
@@ -11,3 +15,135 @@ GET {{CarRental.API_HostAddress}}/categories/1
 Accept: application/json
 
 ###
+
+### ============================================
+### CARS
+### ============================================
+
+### Get all cars (default pagination)
+GET {{CarRental.API_HostAddress}}/cars
+Accept: application/json
+
+###
+
+### Get all cars with filters
+GET {{CarRental.API_HostAddress}}/cars?categoryId=1&fuel=Petrol&minPrice=100&maxPrice=500&page=1&pageSize=5&sortBy=price&sortDirection=asc
+Accept: application/json
+
+###
+
+### Get all cars filtered by brand
+GET {{CarRental.API_HostAddress}}/cars?brand=Toyota
+Accept: application/json
+
+###
+
+### Get car by ID
+GET {{CarRental.API_HostAddress}}/cars/1
+Accept: application/json
+
+###
+
+### Create a new car
+POST {{CarRental.API_HostAddress}}/cars
+Content-Type: application/json
+
+{
+  "categoryId": 2,
+  "brand": "Toyota",
+  "model": "Corolla",
+  "year": 2024,
+  "regNr": "ABC-123",
+  "fuel": "Petrol",
+  "transmission": "Automatic",
+  "seats": 5,
+  "price": 250.00,
+  "status": "Available"
+}
+
+###
+
+### Update a car
+PUT {{CarRental.API_HostAddress}}/cars/1
+Content-Type: application/json
+
+{
+  "categoryId": 2,
+  "brand": "Toyota",
+  "model": "Corolla",
+  "year": 2024,
+  "regNr": "ABC-123",
+  "fuel": "Petrol",
+  "transmission": "Automatic",
+  "seats": 5,
+  "price": 275.00,
+  "status": "Available"
+}
+
+###
+
+### Delete a car
+DELETE {{CarRental.API_HostAddress}}/cars/1
+
+###
+
+### ============================================
+### CUSTOMERS
+### ============================================
+
+### Register a new customer
+POST {{CarRental.API_HostAddress}}/customers
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "password123",
+  "firstName": "John",
+  "lastName": "Doe",
+  "phone": "+46701234567",
+  "address": "123 Main Street",
+  "city": "Stockholm",
+  "postalCode": "11122",
+  "country": "Sweden"
+}
+
+###
+
+### Get customer by ID
+GET {{CarRental.API_HostAddress}}/customers/1
+Accept: application/json
+
+###
+
+### Update customer profile
+PUT {{CarRental.API_HostAddress}}/customers/1
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "phone": "+46709876543",
+  "address": "456 New Street",
+  "city": "Gothenburg",
+  "postalCode": "41101",
+  "country": "Sweden"
+}
+
+###
+
+### ============================================
+### ADMIN
+### ============================================
+
+### Get dashboard statistics
+GET {{CarRental.API_HostAddress}}/admin/stats
+Accept: application/json
+
+###
+
+### Get all customers (admin)
+GET {{CarRental.API_HostAddress}}/admin/customers
+Accept: application/json
+
+###
+

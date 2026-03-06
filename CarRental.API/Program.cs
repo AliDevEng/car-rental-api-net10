@@ -1,4 +1,8 @@
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using CarRental.Application.Services;
+using CarRental.Application.Services.Interfaces;
+using CarRental.API.Middleware;
 using CarRental.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +16,14 @@ builder.Services.AddDbContext<CarRentalDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection")!
     )
 );
+
+// Register FluentValidation validators from Application assembly
+builder.Services.AddValidatorsFromAssemblyContaining<CarService>();
+
+// Register Application services
+builder.Services.AddScoped<ICarService, CarService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 
 // Configure CORS for frontend
 builder.Services.AddCors(options =>
@@ -35,6 +47,9 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+// Global exception handling
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseCors("AllowFrontend");
 app.UseHttpsRedirection();
