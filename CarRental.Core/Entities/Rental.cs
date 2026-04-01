@@ -13,6 +13,8 @@ public class Rental
     public required string Status { get; set; }
     public DateTime CreatedAt { get; set; }
 
-    // Navigation properties (will be implemented in later iterations)
+    // Navigation properties
+    public Customer Customer { get; set; } = null!;
     public Car Car { get; set; } = null!;
+    public Payment? Payment { get; set; }
 }

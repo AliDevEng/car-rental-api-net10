@@ -254,6 +254,11 @@ namespace CarRental.Infrastructure.Migrations
                     b.HasIndex("BookingNumber")
                         .IsUnique();
 
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("PaymentId")
+                        .IsUnique();
+
                     b.HasIndex("CarId", "StartDate", "EndDate");
 
                     b.ToTable("Rentals");
@@ -278,7 +283,22 @@ namespace CarRental.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("CarRental.Core.Entities.Customer", "Customer")
+                        .WithMany("Rentals")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CarRental.Core.Entities.Payment", "Payment")
+                        .WithOne()
+                        .HasForeignKey("CarRental.Core.Entities.Rental", "PaymentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Car");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Payment");
                 });
 
             modelBuilder.Entity("CarRental.Core.Entities.Car", b =>
@@ -289,6 +309,11 @@ namespace CarRental.Infrastructure.Migrations
             modelBuilder.Entity("CarRental.Core.Entities.CarsCategory", b =>
                 {
                     b.Navigation("Cars");
+                });
+
+            modelBuilder.Entity("CarRental.Core.Entities.Customer", b =>
+                {
+                    b.Navigation("Rentals");
                 });
 #pragma warning restore 612, 618
         }

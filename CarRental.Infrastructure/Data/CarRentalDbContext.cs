@@ -43,6 +43,20 @@ public class CarRentalDbContext : DbContext
             .HasForeignKey(r => r.CarId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // Configure Rental-Customer relationship
+        modelBuilder.Entity<Rental>()
+            .HasOne(r => r.Customer)
+            .WithMany(c => c.Rentals)
+            .HasForeignKey(r => r.CustomerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure Rental-Payment relationship
+        modelBuilder.Entity<Rental>()
+            .HasOne(r => r.Payment)
+            .WithOne()
+            .HasForeignKey<Rental>(r => r.PaymentId)
+            .OnDelete(DeleteBehavior.SetNull);
+
         // Configure indexes for performance
         modelBuilder.Entity<Car>()
             .HasIndex(c => c.RegNr)

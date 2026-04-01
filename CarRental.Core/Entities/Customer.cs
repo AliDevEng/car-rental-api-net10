@@ -14,5 +14,6 @@ public class Customer
     public string? Country { get; set; }
     public DateTime CreatedAt { get; set; }
 
-    // Navigation property - will be implemented in later iterations
+    // Navigation property
+    public ICollection<Rental> Rentals { get; set; } = new List<Rental>();
 }

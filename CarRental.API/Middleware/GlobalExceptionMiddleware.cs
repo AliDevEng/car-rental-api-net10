@@ -47,6 +47,12 @@ public class GlobalExceptionMiddleware
                 response.Message = unauthorizedEx.Message;
                 break;
 
+            case UnauthorizedAccessException unauthorizedAccessEx:
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                response.Status = 401;
+                response.Message = unauthorizedAccessEx.Message;
+                break;
+
             case NotFoundException notFoundEx:
                 context.Response.StatusCode = StatusCodes.Status404NotFound;
                 response.Status = 404;

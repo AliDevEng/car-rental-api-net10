@@ -1,4 +1,5 @@
 @CarRental.API_HostAddress = https://localhost:7174
+@AuthToken = your_jwt_token_here
 
 ### ============================================
 ### CATEGORIES
@@ -128,6 +129,67 @@ Content-Type: application/json
   "postalCode": "41101",
   "country": "Sweden"
 }
+
+###
+
+### ============================================
+### RENTALS (PHASE 4)
+### ============================================
+
+### Check car availability
+GET {{CarRental.API_HostAddress}}/rentals/availability?carId=1&startDate=2026-03-10T10:00:00&endDate=2026-03-15T10:00:00
+Accept: application/json
+
+###
+
+### Create a new rental booking
+POST {{CarRental.API_HostAddress}}/rentals
+Content-Type: application/json
+Authorization: Bearer {{AuthToken}}
+
+{
+  "carId": 1,
+  "startDate": "2026-03-10T10:00:00",
+  "endDate": "2026-03-15T10:00:00"
+}
+
+###
+
+### Get rental by ID
+GET {{CarRental.API_HostAddress}}/rentals/1
+Accept: application/json
+Authorization: Bearer {{AuthToken}}
+
+###
+
+### Get my rentals (customer)
+GET {{CarRental.API_HostAddress}}/rentals/my-rentals?page=1&pageSize=10
+Accept: application/json
+Authorization: Bearer {{AuthToken}}
+
+###
+
+### Get all rentals (admin only)
+GET {{CarRental.API_HostAddress}}/rentals?page=1&pageSize=10
+Accept: application/json
+Authorization: Bearer {{AuthToken}}
+
+###
+
+### Update rental status (admin only)
+PUT {{CarRental.API_HostAddress}}/rentals/1/status
+Content-Type: application/json
+Authorization: Bearer {{AuthToken}}
+
+{
+  "status": "Confirmed"
+}
+
+###
+
+### Cancel a rental
+DELETE {{CarRental.API_HostAddress}}/rentals/1
+Authorization: Bearer {{AuthToken}}
 
 ###
 

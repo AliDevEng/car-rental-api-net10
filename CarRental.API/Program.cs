@@ -28,6 +28,7 @@ builder.Services.AddScoped<ICarService, CarService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IRentalService, RentalService>();
 
 // Configure JWT Authentication
 var jwtSecret = builder.Configuration["JWT:Secret"]

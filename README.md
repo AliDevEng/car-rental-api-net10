@@ -29,9 +29,9 @@ A modern, scalable **RESTful API** for car rental management built with **.NET 1
 - ✅ **JWT Authentication** - Secure token-based authentication for customers and admins
 - ✅ **Password Hashing** - BCrypt password hashing for secure credential storage
 - ✅ **Role-Based Access Control** - Admin-only and authenticated-user endpoint protection
+- ✅ **Booking System** - Rental creation, availability checks, booking management, and status tracking
 
 ### Upcoming Features
-- 🔜 **Booking System** - Create and manage rental reservations
 - 🔜 **Payment Processing** - Handle payment transactions
 
 ---
@@ -48,6 +48,7 @@ CarRental/
 │   │   ├── CategoriesController.cs
 │   │   ├── CarsController.cs
 │   │   ├── CustomersController.cs
+│   │   ├── RentalsController.cs
 │   │   └── AdminController.cs
 │   ├── Middleware/             # Global exception handling
 │   │   └── GlobalExceptionMiddleware.cs
@@ -58,6 +59,7 @@ CarRental/
 │   │   ├── Auth/               # Auth request/response DTOs
 │   │   ├── Car/                # Car request/response DTOs
 │   │   ├── Customer/           # Customer request/response DTOs
+│   │   ├── Rental/             # Rental request/response DTOs
 │   │   ├── Admin/              # Admin response DTOs
 │   │   └── Common/             # Shared DTOs (PagedResult)
 │   ├── Exceptions/             # Custom exceptions
@@ -219,6 +221,18 @@ The API will be available at: **https://localhost:7174**
 | `GET` | `/customers/{id}` | Get customer profile | 🔒 Authenticated |
 | `PUT` | `/customers/{id}` | Update customer profile | 🔒 Authenticated |
 
+### Rentals
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `POST` | `/rentals` | Create new booking | 🔒 Customer |
+| `GET` | `/rentals/{id}` | Get booking details | 🔒 Customer/Admin |
+| `GET` | `/rentals/my-rentals` | Customer rental history (paged) | 🔒 Customer |
+| `GET` | `/rentals` | Get all rentals (paged) | 🔒 Admin |
+| `PUT` | `/rentals/{id}/status` | Update rental status | 🔒 Admin |
+| `DELETE` | `/rentals/{id}` | Cancel rental | 🔒 Customer |
+| `GET` | `/rentals/availability` | Check availability for date range | 🌐 Public |
+
 ### Admin
 
 | Method | Endpoint | Description | Auth |
@@ -297,7 +311,6 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
 
 ### Coming Soon
 
-- 🔜 `POST /rentals` - Create a booking
 - 🔜 `POST /payments` - Process payment
 
 ---
@@ -382,11 +395,11 @@ curl https://localhost:7174/categories -k
 - [x] Password hashing with BCrypt
 - [x] Global 401 error handling
 
-### Phase 4: Booking System 🔄 (Next)
-- [ ] Rental creation
-- [ ] Availability checking
-- [ ] Booking management
-- [ ] Status tracking
+### Phase 4: Booking System ✅
+- [x] Rental creation
+- [x] Availability checking
+- [x] Booking management
+- [x] Status tracking
 
 ### Phase 5: Payments & Deployment
 - [ ] Payment gateway integration
